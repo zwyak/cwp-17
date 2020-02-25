@@ -1,0 +1,10 @@
+{
+  "name": "cwp-17",
+  "author": "Vlad Senyuk",
+  "dependencies": {
+    "express": "^4.17.1",
+    "multer": "^1.4.2",
+    "sharp": "^0.24.1",
+    "uuid": "^7.0.0"
+  }
+}
