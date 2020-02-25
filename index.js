@@ -12,6 +12,8 @@ const upload = multer({ storage: storage });
 
 const app = express();
 
+app.use(express.static('public'));
+
 app.post('/upload', upload.single('file'), (req, res, next) => {
   res.json({ succeed: true });
 });
