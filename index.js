@@ -1,6 +1,5 @@
 const express = require('express');
 const multer  = require('multer');
-const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
 const storage = multer.diskStorage({
@@ -13,8 +12,8 @@ const storage = multer.diskStorage({
 const pdfStorage = multer.diskStorage({
   destination: './uploads/pdf/',
   filename: function (req, file, cb) {
-    const filename = uuidv4() + '.pdf';
-    cb(null, filename);
+    if (path.extname(file.originalname) == '.pdf') cb(null, Date.now() + '.pdf');
+    else return;
   }
 });
 
@@ -30,16 +29,11 @@ app.post('/upload', upload.single('file'), (req, res, next) => {
 });
 
 app.post('/pdf', pdf.array('files', 3), (req, res, next) => {
-  let counter = 0;
-  req.files.forEach((item, i) => {
-    if (path.extname(item.originalname) != '.pdf') {
+    if (req.files.length == 0){
       res.sendStatus(401);
       return;
-    }else{
-      counter++;
     }
-  });
-  res.json({ succeed: true, files: counter });
+    res.json({ succeed: true, files: req.files });
 });
 
 app.listen(3000, () => console.log('Server app listening on port 3000!'));
