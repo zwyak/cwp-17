@@ -5,8 +5,14 @@
     <title>Files</title>
   </head>
   <body>
+    <label>FILES:</label>
     <form action="http://localhost:3000/upload" method="POST" enctype="multipart/form-data">
       <input name="file" type="file" multiple>
+      <input type="submit">
+    </form>
+    <label>PDF:</label>
+    <form action="http://localhost:3000/pdf" method="POST" enctype="multipart/form-data">
+      <input name="files" type="file" multiple>
       <input type="submit">
     </form>
   </body>

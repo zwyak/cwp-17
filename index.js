@@ -1,6 +1,7 @@
 const express = require('express');
 const multer  = require('multer');
-const uuidv4  = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 const storage = multer.diskStorage({
   destination: './uploads/',
@@ -31,8 +32,9 @@ app.post('/upload', upload.single('file'), (req, res, next) => {
 app.post('/pdf', pdf.array('files', 3), (req, res, next) => {
   let counter = 0;
   req.files.forEach((item, i) => {
-    if (path.extension(item.originalname) != '.pdf') {
+    if (path.extname(item.originalname) != '.pdf') {
       res.sendStatus(401);
+      return;
     }else{
       counter++;
     }
