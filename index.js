@@ -12,13 +12,24 @@ const storage = multer.diskStorage({
 const pdfStorage = multer.diskStorage({
   destination: './uploads/pdf/',
   filename: function (req, file, cb) {
-    if (path.extname(file.originalname) == '.pdf') cb(null, Date.now() + '.pdf');
-    else return;
+    cb(null, Date.now() + '.pdf');
   }
 });
 
 const upload = multer({ storage: storage });
-const pdf = multer({ storage: pdfStorage });
+const pdf = multer(
+  {
+    storage: pdfStorage,
+    fileFilter: (req, files, cb) => {
+      req.files.forEach((file, i) => {
+        if(file.mimetype !== 'application/pdf') {
+          return cb(null, false);
+        }else{
+          cb(null, true)
+        }
+      });
+    }
+});
 
 const app = express();
 
@@ -30,7 +41,7 @@ app.post('/upload', upload.single('file'), (req, res, next) => {
 
 app.post('/pdf', pdf.array('files', 3), (req, res, next) => {
     if (req.files.length == 0){
-      res.sendStatus(401);
+      res.sendStatus(404);
       return;
     }
     res.json({ succeed: true, files: req.files });
