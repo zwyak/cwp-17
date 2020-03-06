@@ -21,17 +21,7 @@ const imageStorage = multer.diskStorage({
   destination: './uploads/images/',
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
-
-    sharp(file)
-    .resize(800, 600)
-    .then( data => { cb(null, 'preview' + Date.now() + ext); })
-    .catch( err => { console.error(err);});
-
-    sharp(file)
-    .resize(300, 180)
-    .then( data => { cb(null, 'thumbnail' + Date.now() + ext); })
-    .catch( err => { console.error(err);});
+    cb(null, file.originalname + '_' + Date.now() + ext);
   }
 });
 
@@ -80,8 +70,35 @@ app.post('/pdf', pdf.array('files', 3), (req, res, next) => {
     res.json({ succeed: true, files: req.files });
 });
 
-app.post('/images', image.single('image'), (req, res, next) => {
-    res.json({ images: req.file });
+app.post('/images', image.single('image'), async (req, res, next) => {
+   let files = [];
+   await sharp(req.file.path)
+   .resize(800, 600)
+   .toFile(
+      path.resolve('uploads/images', 'preview' + Date.now() + path.extname(req.file.originalname))
+    )
+   .then((data)=>{
+     files.push(data);
+   })
+   .catch(err =>{
+     console.error(err);
+     res.sendStatus(401);
+    })
+
+    await sharp(req.file.path)
+    .resize(300, 180)
+    .toFile(
+       path.resolve('uploads/images', 'thumbnail' + Date.now() + path.extname(req.file.originalname))
+     )
+    .then((data)=>{
+      files.push(data);
+    })
+    .catch(err =>{
+      console.error(err);
+      res.sendStatus(401);
+     })
+
+    res.json({ original: req.file, data: files });
 });
 
 app.listen(3000, () => console.log('Server app listening on port 3000!'));
